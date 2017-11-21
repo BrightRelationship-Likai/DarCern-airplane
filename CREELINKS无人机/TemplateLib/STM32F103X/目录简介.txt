@@ -1,0 +1,20 @@
+1）Stm32f10x：基于STM32F10X处理器系列的官方库，版本3.5
+2）StandardLib： CREELINKS平台标准库，版本18.0
+3）CoreLib：用于ELinkSTM核心板的核心库,版本18.0
+4）ModuleLib：模块驱动库
+5）UserCode：用户代码
+6）uCOSII：uC/OS II操作系统库，版本2.52
+7）uCGUI：uC/GUI 图形界面库，版本3.90
+
+
+6）KeilProject_NoRTOS：无操作系统（裸奔）环境工程模版。
+7）KeilProject_uCOSII：基于操作系统uC/OS II（版本2.52）的环境工程模版。
+8）KeilProject_uCOSII_uCGUI：基于操作系统uC/OS II（版本2.52）， 和uC/GUI（版本3.90）的环境工程模版。
+
+
+使用说明：
+1）如果是第一次接触Creelinks平台，可打开并使用裸奔环境（..\KeilProject_NoRTOS\KeilProject_NoRTOS.uvprojx)
+2）所有KEIL工程大体相同，不同点仅在于：
+    a）所包含的文件不同
+    b）工程宏定义不同（Project->Option for target""->C/C++->Define:中内容）
+

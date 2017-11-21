@@ -1,0 +1,76 @@
+/**
+******************************************************************************
+* @file       main.c
+* @author     Creelinks Application Team
+* @version    V1.1.0
+* @date       2016-09-05
+* @brief      基于前后台（裸奔）Creelinks平台主入口函数
+******************************************************************************
+* @attention
+*
+*1)基于uCOS II实时RTOS操作系统
+*2)由于uCOS II不允许同样优先级的任务存在，故任务的创建请尽量使用Creelinks平台
+*  提供的新任务创建方法，避免出现调用uCOS II创建任务的优先级，与模块驱动创建
+*  的任务优先级相同而导致程序无法运行。
+*3)程序运行到ceSystemOp.mainTask()后，不再向下执行，请不要在此函数后添加操作。
+* <h2><center>&copy; COPYRIGHT 2016 Darcern</center></h2>
+******************************************************************************
+*/
+#include "Creelinks.h"
+
+#define MY_TASK1_STACK_BUF_SIZE  1024                   //任务1堆栈缓存大小
+CE_STK MY_TASK1_STACK_BUF[MY_TASK1_STACK_BUF_SIZE];     //任务1使用堆栈缓存
+CeTask myTask1;                                         //定义任务1的属性对象实例
+void myTask1CallBack(void* pAddPar)                     //示例任务1函数，注意：因Creelinks环境将任务创建和调用进行简化处理，故任务函数可以不是while(1)循环，也能保证周期调用
+{
+    while(1)
+    {
+        ceDebugOp.printf("Task 1 is running...\n");
+        ceSystemOp.delayMs(100);
+    }
+}
+
+#define MY_TASK2_STACK_BUF_SIZE  1024                   //任务2堆栈缓存大小
+CE_STK MY_TASK2_STACK_BUF[MY_TASK2_STACK_BUF_SIZE];     //任务2使用堆栈缓存
+CeTask myTask2;                                         //定义任务2的属性对象实例
+void myTask2CallBack(void* pAddPar)                     //示例任务2函数，注意：因Creelinks环境将任务创建和调用进行简化处理，故任务函数可以不是while(1)循环，也能保证周期调用
+{
+    while(1)
+    {
+        ceDebugOp.printf("Task 2 is running...\n");
+        ceSystemOp.delayMs(500);
+    }
+}
+
+int main(void)
+{
+    ceSystemOp.initial();                               //Creelinks环境初始化
+    ceDebugOp.initial(Uart4);                          //通过Uart串口输出Debug信息到上位机
+    //TODO:请在此处插入模块初始化、任务创建等操作
+	
+    myTask1.ID = 0x0033;                                //指定任务1的ID号
+    myTask1.taskName = "My Task1";                      //设定任务1的名称，注册长度不要超过CeMcu.h中定义的CE_TASK_NAME_LENGTH值
+    myTask1.callBack = myTask1CallBack;                 //指定具体任务1，一个函数即为一个任务，系统会周期调用任务函数
+    myTask1.pAddPar = &myTask1;                         //指定给任务1函数传递的pAddPar参数
+    myTask1.taskPriority = CE_TASK_PRIORITY_H;          //基于Creelinks平台的任务1优先级，共5个，分为为HH、H、M、L、LL，同等优先级的任务，在RTOS环境下，先注册的任务高于后注册的任务
+    myTask1.taskStackBuf = MY_TASK1_STACK_BUF;          //任务使用堆栈缓存
+    myTask1.taskStackBufSize = MY_TASK1_STACK_BUF_SIZE; //任务堆栈缓存大小
+    ceTaskOp.registerTask(&myTask1);                    //注册此任务1
+    ceTaskOp.start(&myTask1);                           //开始运行
+
+    myTask2.ID = 0x0022;                               //指定任务2的ID号
+    myTask2.taskName = "My Task2";                      //设定任务2的名称，注册长度不要超过CeMcu.h中定义的CE_TASK_NAME_LENGTH值
+    myTask2.callBack = myTask2CallBack;                 //指定具体任务2，一个函数即为一个任务，系统会周期调用任务函数
+    myTask2.pAddPar = &myTask2;                         //指定给任务函数传递的pAddPar参数
+    myTask2.taskPriority = CE_TASK_PRIORITY_H;         //基于Creelinks平台的任务2优先级，共5个，分为为HH、H、M、L、LL，同等优先级的任务，在RTOS环境下，先注册的任务高于后注册的任务
+    myTask2.taskStackBuf = MY_TASK2_STACK_BUF;          //任务2使用堆栈缓存
+    myTask2.taskStackBufSize = MY_TASK2_STACK_BUF_SIZE; //任务2堆栈缓存大小
+    ceTaskOp.registerTask(&myTask2);                    //注册此任务2
+    ceTaskOp.start(&myTask2);                           //开始运行
+
+    ceTaskOp.mainTask();                              //在RTOS操作系统（uCOS II）环境下，执行到此函数后，将不再向下执行。
+    return 0;
+}
+
+
+
